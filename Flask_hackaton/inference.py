@@ -8,69 +8,58 @@ from sklearn.preprocessing import StandardScaler
 
 app = flask.Flask(__name__)
 
+USER_ID = 100
+
 df_2 = pd.read_csv('for_database.csv')
 df_2['gender'].loc[(df_2['gender'] == 'female')] = 1
 df_2['gender'].loc[(df_2['gender'] == 'male')] = 0
-
 df_2['gender'] = df_2['gender'].astype(int)
 
-#Smoking encoding
-
-categ = ['never smoked',  'tried smoking','former smoker', 'current smoker']
-
+categ = ['never smoked', 'tried smoking', 'former smoker', 'current smoker']
 oe = OrdinalEncoder(categories=[categ],
                     dtype=int)
 oe.fit(df_2[['smoking']])
-
 df_2[['smoking']] = oe.transform(pd.DataFrame(df_2['smoking']))
 
-categ = ['never',  'social drinker','drink a lot']
-
+categ = ['never', 'social drinker', 'drink a lot']
 oe = OrdinalEncoder(categories=[categ],
                     dtype=int)
-
 oe.fit(df_2[['drinking']])
-
 df_2[['drinking']] = oe.transform(pd.DataFrame(df_2['drinking']))
 
-
-categ = ['currently a primary school pupil',  'primary school', 'secondary school', 'college/bachelor degree', 'masters degree',
-            'doctorate degree']
-
+categ = ['currently a primary school pupil', 'primary school', 'secondary school', 'college/bachelor degree',
+         'masters degree',
+         'doctorate degree']
 oe = OrdinalEncoder(categories=[categ],
                     dtype=int)
-
 oe.fit(df_2[['education']])
-
 df_2[['education']] = oe.transform(pd.DataFrame(df_2['education']))
+df_2['education'].loc[df_2['education'] > 3] = 3
 
-df_2['education'].loc[df_2['education']>3]=3
-
-df_2['number_siblings'].loc[df_2['number_siblings']>5]=5
-
-df_train1 = df_2[df_2['train']==1]
+df_2['number_siblings'].loc[df_2['number_siblings'] > 5] = 5
 
 scaler = StandardScaler()
-scaler.fit(df_train1._get_numeric_data())
+scaler.fit(df_2._get_numeric_data())
 
-df_scaled = pd.DataFrame(data=scaler.transform(df_train1._get_numeric_data()),
-             columns=df_train1._get_numeric_data().columns)
+df_scaled = pd.DataFrame(data=scaler.transform(df_2._get_numeric_data()),
+                         columns=df_2._get_numeric_data().columns)
 
 df = df_scaled.drop(['phone_number', 'train'], axis=1)
+
 
 class Nearest_User:
     def __init__(self, df, user_id):
         self.user_id = user_id
         self.df = df.dropna()
         self.row_user = np.array(df.loc[user_id])
+
     def predict(self):
         similarities = []
-        for i,row in self.df.iterrows():
-            similarities.append(cosine_similarity(self.row_user.reshape(1, -1),np.array(row).reshape(1, -1)))
+        for i, row in self.df.iterrows():
+            similarities.append(cosine_similarity(self.row_user.reshape(1, -1), np.array(row).reshape(1, -1)))
         self.df['similarities'] = similarities
-        self.df = self.df.sort_values(by='similarities',ascending=False)
+        self.df = self.df.sort_values(by='similarities', ascending=False)
         return int(self.df.head(2).tail(1).index[0])
-
 
 
 @app.route('/best_friend')
