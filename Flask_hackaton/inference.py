@@ -31,9 +31,9 @@ def best_friend():
     nu = Nearest_User(df, user_id)
     index = nu.predict()
     df_final = df_2.loc[index].to_frame().T
-    return f"""Your best friend in this train is {df_final['first_name']} {df_final['last_name']}.
-            Phone number: {df_final['phone_number']} 
-            Email: {df_final['email']}
+    return f"""Your best friend in this train is {list(df_final['first_name'])[0]} {list(df_final['last_name'])[0]}.
+            Phone number: {list(df_final['phone_number'])[0]} 
+            Email: {list(df_final['email'])[0]}
             """
 
 
