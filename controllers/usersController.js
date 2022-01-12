@@ -77,7 +77,25 @@ const makeAdmin = async (req, res) => {
   res.status(StatusCodes.OK).send("Updated Admin Successfully!");
 };
 
+const getUser = async (req, res) => {
+  const { id } = req.params;
+  console.log(`Get a user with id: ${id}`);
+};
+
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  console.log(`Delete user with id: ${id}`);
+};
+
+const reportUser = async (req, res) => {
+  const { id } = req.params;
+  console.log(`Report a user with id: ${id}`);
+};
+
 module.exports = {
+  getUser,
+  deleteUser,
+  reportUser,
   makeAdmin,
   updateUserPassword,
   updateUserProfile,
