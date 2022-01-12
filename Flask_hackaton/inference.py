@@ -3,11 +3,60 @@ from flask import request
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import StandardScaler
 
 app = flask.Flask(__name__)
 
-df = pd.read_csv('for_modeling.csv')
 df_2 = pd.read_csv('for_database.csv')
+df_2['gender'].loc[(df_2['gender'] == 'female')] = 1
+df_2['gender'].loc[(df_2['gender'] == 'male')] = 0
+
+df_2['gender'] = df_2['gender'].astype(int)
+
+#Smoking encoding
+
+categ = ['never smoked',  'tried smoking','former smoker', 'current smoker']
+
+oe = OrdinalEncoder(categories=[categ],
+                    dtype=int)
+oe.fit(df_2[['smoking']])
+
+df_2[['smoking']] = oe.transform(pd.DataFrame(df_2['smoking']))
+
+categ = ['never',  'social drinker','drink a lot']
+
+oe = OrdinalEncoder(categories=[categ],
+                    dtype=int)
+
+oe.fit(df_2[['drinking']])
+
+df_2[['drinking']] = oe.transform(pd.DataFrame(df_2['drinking']))
+
+
+categ = ['currently a primary school pupil',  'primary school', 'secondary school', 'college/bachelor degree', 'masters degree',
+            'doctorate degree']
+
+oe = OrdinalEncoder(categories=[categ],
+                    dtype=int)
+
+oe.fit(df_2[['education']])
+
+df_2[['education']] = oe.transform(pd.DataFrame(df_2['education']))
+
+df_2['education'].loc[df_2['education']>3]=3
+
+df_2['number_siblings'].loc[df_2['number_siblings']>5]=5
+
+df_train1 = df_2[df_2['train']==1]
+
+scaler = StandardScaler()
+scaler.fit(df_train1._get_numeric_data())
+
+df_scaled = pd.DataFrame(data=scaler.transform(df_train1._get_numeric_data()),
+             columns=df_train1._get_numeric_data().columns)
+
+df = df_scaled.drop(['phone_number', 'train'], axis=1)
 
 class Nearest_User:
     def __init__(self, df, user_id):
@@ -31,8 +80,8 @@ def best_friend():
     nu = Nearest_User(df, user_id)
     index = nu.predict()
     df_final = df_2.loc[index].to_frame().T
-    return f"""Your best friend in this train is {list(df_final['first_name'])[0]} {list(df_final['last_name'])[0]}.
-            Phone number: {list(df_final['phone_number'])[0]} 
+    return f"""Your best friend in this train is {list(df_final['first_name'])[0]} {list(df_final['last_name'])[0]} \n
+            Phone number: {list(df_final['phone_number'])[0]} \n
             Email: {list(df_final['email'])[0]}
             """
 
