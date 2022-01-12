@@ -14,6 +14,8 @@ const routeRoute = require('./routes/routeRoute');
 const auth = require('./middleware/authentication');
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
+const { sequelize } = require("./database/database");
+const User = require("./database/models");
 
 //Middleware
 app.set('trust proxy', 1);
@@ -41,9 +43,14 @@ const port = +process.env.PORT;
 
 const start = async () => {
     try {
+        sequelize
+        .sync()
+        .then((result) => {
+            console.log("migrated db successful");});
         app.listen(port, () => {
             console.log(`Server is listening on port ${port}...`);
         });
+
     } catch (err) {
         console.log(err);
     }
