@@ -63,9 +63,9 @@ df = pd.merge(df_scaled, df_db['user_id'], left_index=True, right_index=True)
 
 
 class Nearest_User:
-    def __init__(self, df, user_id):
+    def __init__(self, df, user_id, train_id):
         self.user_id = user_id
-        self.df = df.dropna()
+        self.df = df[df['train'] == train_id]
         self.row_user = np.array(df[df['user_id'] == user_id])
 
     def predict(self):
@@ -81,7 +81,7 @@ class Nearest_User:
 def best_friend():
     user_id = int(request.args.get("user_id"))
     train_id = int(request.args.get("train_id"))
-    nu = Nearest_User(df, user_id)
+    nu = Nearest_User(df, user_id,train_id)
     index = nu.predict()
     return str(index)
 
