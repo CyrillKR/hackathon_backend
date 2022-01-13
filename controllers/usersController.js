@@ -21,7 +21,7 @@ const signUpUser = async (req, res) => {
   }
 
   const userId = uuidv4();
-  const hashedPassword = encryptPassword(password);
+  const hashedPassword = await encryptPassword(password);
   const user = await signUpUserQuery({
     userId,
     firstName,
