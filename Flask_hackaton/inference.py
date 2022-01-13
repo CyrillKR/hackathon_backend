@@ -74,7 +74,7 @@ class Nearest_User:
             similarities.append(cosine_similarity(self.row_user.reshape(1, -1), np.array(row).reshape(1, -1)))
         self.df['similarities'] = similarities
         self.df = self.df.sort_values(by='similarities', ascending=False)
-        return int(self.df.head(2).tail(1).index[0])
+        return int(self.df.head(2).tail(1)['user_id'])
 
 
 @app.route('/best_friend')
