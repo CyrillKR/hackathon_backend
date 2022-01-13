@@ -36,11 +36,28 @@ df_db['education'].loc[df_db['education'] > 3] = 3
 
 df_db['number_siblings'].loc[df_db['number_siblings'] > 5] = 5
 
+cols_to_scale = [
+    'gender', 'birth_year', 'number_siblings', 'education',
+    'slow_songs_or_fast_songs', 'dance', 'folk', 'country', 'classical_music',
+    'musical', 'pop', 'rock', 'metal_or_hardrock', 'punk', 'hiphop_rap',
+    'reggae_ska', 'swing_jazz', 'rock_n_roll', 'alternative', 'latino',
+    'techno_trance', 'opera', 'horror', 'thriller', 'comedy', 'romantic',
+    'sci_fi', 'war', 'fantasy_fairy_tales', 'animated', 'documentary',
+    'western', 'action', 'mathematics', 'physics', 'biology', 'chemistry',
+    'medicine', 'geography', 'history', 'psychology', 'politics', 'economy',
+    'law', 'science_and_technology', 'internet', 'pc', 'art_exhibitions',
+    'theatre', 'dancing', 'musical_instruments', 'writing', 'reading',
+    'foreign_languages', 'cars', 'religion', 'gardening', 'celebrities',
+    'shopping', 'fun_with_friends', 'pets', 'sport', 'travel', 'flying',
+    'thunder_lightning', 'darkness', 'heights', 'spiders', 'snakes',
+    'rats_mice', 'aging', 'dangerous_dog', 'public_speaking', 'smoking',
+    'drinking', 'healthy_life_style'
+]
 scaler = StandardScaler()
-scaler.fit(df_db._get_numeric_data())
+scaler.fit(df_db[cols_to_scale])
 
-df_scaled = pd.DataFrame(data=scaler.transform(df_db._get_numeric_data()),
-                         columns=df_db._get_numeric_data().columns)
+df_scaled = pd.DataFrame(data=scaler.transform(df_db[cols_to_scale]),
+                         columns=df_db[cols_to_scale].columns, index=df_db.index)
 
 df = df_scaled.drop(['phone_number', 'train'], axis=1)
 
@@ -49,7 +66,7 @@ class Nearest_User:
     def __init__(self, df, user_id):
         self.user_id = user_id
         self.df = df.dropna()
-        self.row_user = np.array(df.loc[user_id])
+        self.row_user = np.array(df[df['user_id'] == user_id])
 
     def predict(self):
         similarities = []
