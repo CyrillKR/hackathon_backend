@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
-const { encryptPassword, comparePassword } = require("../utils/bcrypt");
+const { encryptPassword } = require("../utils/bcrypt");
 const User = require('../models/UserSchema');
 
 const login = async (req, res) => {

@@ -49,8 +49,7 @@ app.use("/api/v1/route", auth, routeRoute);
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-const port = process.env.PORT || 4000;
-console.log("port variable", port);
+const port = process.env.PORT || 5000;
 const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI);
