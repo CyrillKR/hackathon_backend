@@ -66,19 +66,6 @@ def best_friend():
     train_id = int(request.args.get("train_id"))
     nu = Nearest_User(df, user_id)
     index = nu.predict()
-    df_final = df_db.loc[index].to_frame().T
-    return f"""Your best friend in this train is {list(df_final['first_name'])[0]} {list(df_final['last_name'])[0]} \n
-            Phone number: {list(df_final['phone_number'])[0]} \n
-            Email: {list(df_final['email'])[0]}
-            """
-
-@app.route('/best_friend/picture')
-def picture():
-    return "https://images.app.goo.gl/XppjPp9iHgA514zv5"
-
-
-@app.route('/best_friend/bio')
-def bio():
-    return "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    return int(index)
 
 app.run(host='0.0.0.0', port=8080)
