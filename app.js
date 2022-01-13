@@ -1,5 +1,6 @@
 require('dotenv').config();
 require('express-async-errors');
+const connectDB = require('./db/connect');
 const helmet = require('helmet');
 const cors = require('cors');
 const xss = require('xss-clean');
@@ -23,6 +24,7 @@ const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const { sequelize } = require("./database/database");
 const User = require("./database/models");
+const req = require('express/lib/request');
 
 //Middleware
 app.set('trust proxy', 1);
@@ -51,10 +53,7 @@ const port = +process.env.PORT;
 
 const start = async () => {
     try {
-        sequelize
-        .sync()
-        .then((result) => {
-            console.log("migrated db successful");});
+        await connectDB(process.env.MONGO_URI);
         app.listen(port, () => {
             console.log(`Server is listening on port ${port}...`);
         });
