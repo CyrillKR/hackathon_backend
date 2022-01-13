@@ -59,7 +59,7 @@ scaler.fit(df_db[cols_to_scale])
 df_scaled = pd.DataFrame(data=scaler.transform(df_db[cols_to_scale]),
                          columns=df_db[cols_to_scale].columns, index=df_db.index)
 
-df = pd.merge(df_scaled, df_db['user_id'], left_index=True, right_index=True)
+df = pd.merge(df_scaled, df_db[['user_id','train']], left_index = True, right_index = True)
 
 
 class Nearest_User:
