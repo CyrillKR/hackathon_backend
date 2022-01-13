@@ -78,12 +78,20 @@ const makeAdmin = async (req, res) => {
 
 const getUser = async (req, res) => {
   const { id } = req.params;
-  console.log(`Get a user with id: ${id}`);
+  const user = await User.findById(id);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+  res.status(StatusCodes.OK).json({ user });
 };
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
-  console.log(`Delete user with id: ${id}`);
+  const user = await User.deleteOne({ _id: id });
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+  res.status(StatusCodes.OK).json({ user });
 };
 
 const reportUser = async (req, res) => {
