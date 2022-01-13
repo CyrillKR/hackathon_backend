@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require("uuid");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
 const { encryptPassword, comparePassword } = require("../utils/bcrypt");
-const { signUpUserQuery } = require("../queries/userQueries");
+const User = require('../models/UserSchema');
 
 const login = (req, res) => {
   const token = req.token;
@@ -14,7 +14,7 @@ const login = (req, res) => {
 };
 
 const signUpUser = async (req, res) => {
-  const { email, password, firstName, lastName, verifyPassword } = req.body;
+  const { email, password, first_name, last_name, verifyPassword } = req.body;
 
   if (password !== verifyPassword) {
     throw new BadRequestError("Passwords don't match");
@@ -22,10 +22,10 @@ const signUpUser = async (req, res) => {
 
   const userId = uuidv4();
   const hashedPassword = await encryptPassword(password);
-  const user = await signUpUserQuery({
+  const user = await User.create({
     userId,
-    firstName,
-    lastName,
+    first_name,
+    last_name,
     email,
     password: hashedPassword,
   });
