@@ -2,17 +2,17 @@ const { v4: uuidv4 } = require("uuid");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
 const { encryptPassword } = require("../utils/bcrypt");
-const User = require('../models/UserSchema');
+const User = require("../models/UserSchema");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    throw new NotFoundError('User not found');
+    throw new NotFoundError("User not found");
   }
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    throw new BadRequestError('Please proved correct password');
+    throw new BadRequestError("Please proved correct password");
   }
   const token = user.createJWT();
   res.status(StatusCodes.OK).json({ user, token });
@@ -20,6 +20,8 @@ const login = async (req, res) => {
 
 const signUpUser = async (req, res) => {
   const { email, password, first_name, last_name, verifyPassword } = req.body;
+  console.log(password);
+  console.log(verifyPassword);
 
   if (password !== verifyPassword) {
     throw new BadRequestError("Passwords don't match");
@@ -80,7 +82,7 @@ const getUser = async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id);
   if (!user) {
-    throw new NotFoundError('User not found');
+    throw new NotFoundError("User not found");
   }
   res.status(StatusCodes.OK).json({ user });
 };
@@ -89,7 +91,7 @@ const deleteUser = async (req, res) => {
   const { id } = req.params;
   const user = await User.deleteOne({ _id: id });
   if (!user) {
-    throw new NotFoundError('User not found');
+    throw new NotFoundError("User not found");
   }
   res.status(StatusCodes.OK).json({ user });
 };
