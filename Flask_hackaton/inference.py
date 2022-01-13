@@ -66,6 +66,7 @@ def best_friend():
     train_id = int(request.args.get("train_id"))
     nu = Nearest_User(df, user_id)
     index = nu.predict()
-    return int(index)
+    return str(index)
+
 
 app.run(host='0.0.0.0', port=8080)
