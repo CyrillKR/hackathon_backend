@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 
 app = flask.Flask(__name__)
 
-df_db = pd.read_csv('for_database.csv')
+df_db = pd.read_csv('for_database_updated.csv')
 df_db['gender'].loc[(df_db['gender'] == 'female')] = 1
 df_db['gender'].loc[(df_db['gender'] == 'male')] = 0
 df_db['gender'] = df_db['gender'].astype(int)
