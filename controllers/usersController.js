@@ -4,13 +4,18 @@ const { BadRequestError, NotFoundError } = require("../errors");
 const { encryptPassword, comparePassword } = require("../utils/bcrypt");
 const User = require('../models/UserSchema');
 
-const login = (req, res) => {
-  const token = req.token;
-  res.status(StatusCodes.OK).json({
-    token,
-    userInfo: req.body.user,
-    message: "Login Success!",
-  });
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    throw new BadRequestError('Please proved correct password');
+  }
+  const token = user.createJWT();
+  res.status(StatusCodes.OK).json({ user, token });
 };
 
 const signUpUser = async (req, res) => {
