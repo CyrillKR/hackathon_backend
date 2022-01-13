@@ -1,8 +1,8 @@
-const userQueries = require("../queries/userQueries");
-const uuidv4 = require('uuid');
-const { StatusCodes } = require('http-status-codes');
+const { v4: uuidv4 } = require("uuid");
+const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
-const { encryptPassword, comparePassword } = require('../utils/bcrypt');
+const { encryptPassword, comparePassword } = require("../utils/bcrypt");
+const { signUpUserQuery } = require("../queries/userQueries");
 
 const login = (req, res) => {
   const token = req.token;
@@ -14,8 +14,7 @@ const login = (req, res) => {
 };
 
 const signUpUser = async (req, res) => {
-  const { email, bio, password, firstName, lastName, phoneNumber, verifyPassword } =
-    req.body;
+  const { email, password, firstName, lastName, verifyPassword } = req.body;
 
   if (password !== verifyPassword) {
     throw new BadRequestError("Passwords don't match");
@@ -23,20 +22,16 @@ const signUpUser = async (req, res) => {
 
   const userId = uuidv4();
   const hashedPassword = encryptPassword(password);
-  const user = await userQueries.signUpUserQuery(
-    {
-      userId,
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      password: hashedPassword,
-      bio
-    }
-  );
+  const user = await signUpUserQuery({
+    userId,
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword,
+  });
 
   if (!user) {
-    throw new NotFoundError('User not found');
+    throw new NotFoundError("User not found");
   }
 
   res.status(StatusCodes.CREATED).json({ user });
@@ -52,7 +47,8 @@ const updateUserPassword = async (req, res) => {
   const { userId } = req.user;
   await userQueries.updateUserPasswordQuery(
     newPassword,
-    newVerifyPassword, userId
+    newVerifyPassword,
+    userId
   );
   res.status(StatusCodes.OK).send("Updated Password Successfully!");
 };
@@ -71,9 +67,7 @@ const updateUserProfile = async (req, res) => {
 
 const makeAdmin = async (req, res) => {
   const { id } = req.params;
-  await userQueries.makeAdminQuery(
-    id
-  );
+  await userQueries.makeAdminQuery(id);
   res.status(StatusCodes.OK).send("Updated Admin Successfully!");
 };
 
@@ -100,5 +94,5 @@ module.exports = {
   updateUserPassword,
   updateUserProfile,
   login,
-  signUpUser
+  signUpUser,
 };

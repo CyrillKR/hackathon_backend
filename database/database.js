@@ -15,7 +15,7 @@ const pool = mysql.createPool({
   host: "127.0.0.1",
   user: "root",
   password: process.env.SQL_PASSWORD,
-  database: "Hachatonapp",
+  database: "Hackatonapp",
 });
 
 function query(sql) {

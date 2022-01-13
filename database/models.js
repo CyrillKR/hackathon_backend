@@ -9,31 +9,34 @@ const UsersTable = sequelize.define("usersTable", {
   },
   role: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
+    defaultValue: "user",
   },
   first_name: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   last_name: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   picture: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
+    defaultValue: "http://www.gravatar.com/avatar/?d=identicon",
   },
   gender: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   birth_year: {
     type: Sequelize.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   email: {
     type: Sequelize.STRING,
     allowNull: false,
+    unique: true,
   },
   password: {
     type: Sequelize.STRING,
@@ -41,29 +44,30 @@ const UsersTable = sequelize.define("usersTable", {
   },
   phone_number: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   bio: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   number_siblings: {
     type: Sequelize.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   train: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   education: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
+
   //Music
 
   slow_songs_or_fast_songs: {
     type: Sequelize.BOOLEAN,
-    defaultValue: true,
+    defaultValue: false,
     allowNull: false,
   },
   dance: {
