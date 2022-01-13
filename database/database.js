@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const mysql = require("mysql2");
-
+console.log(process.env.SQL_PASSWORD);
 const sequelize = new Sequelize(
   "Hackatonapp",
   "root",
@@ -15,7 +15,7 @@ const pool = mysql.createPool({
   host: "127.0.0.1",
   user: "root",
   password: process.env.SQL_PASSWORD,
-  database: "Hachatonapp",
+  database: "Hackatonapp",
 });
 
 function query(sql) {
@@ -28,7 +28,7 @@ function query(sql) {
 }
 
 module.exports = {
-    query,
-    pool,
-    sequelize
-}
+  query,
+  pool,
+  sequelize,
+};

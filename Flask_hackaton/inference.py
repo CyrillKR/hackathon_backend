@@ -8,82 +8,82 @@ from sklearn.preprocessing import StandardScaler
 
 app = flask.Flask(__name__)
 
-df_2 = pd.read_csv('for_database.csv')
-df_2['gender'].loc[(df_2['gender'] == 'female')] = 1
-df_2['gender'].loc[(df_2['gender'] == 'male')] = 0
+df_db = pd.read_csv('for_database_updated.csv')
+df_db['gender'].loc[(df_db['gender'] == 'female')] = 1
+df_db['gender'].loc[(df_db['gender'] == 'male')] = 0
+df_db['gender'] = df_db['gender'].astype(int)
 
-df_2['gender'] = df_2['gender'].astype(int)
-
-#Smoking encoding
-
-categ = ['never smoked',  'tried smoking','former smoker', 'current smoker']
-
+categ = ['never smoked', 'tried smoking', 'former smoker', 'current smoker']
 oe = OrdinalEncoder(categories=[categ],
                     dtype=int)
-oe.fit(df_2[['smoking']])
+oe.fit(df_db[['smoking']])
+df_db[['smoking']] = oe.transform(pd.DataFrame(df_db['smoking']))
 
-df_2[['smoking']] = oe.transform(pd.DataFrame(df_2['smoking']))
-
-categ = ['never',  'social drinker','drink a lot']
-
+categ = ['never', 'social drinker', 'drink a lot']
 oe = OrdinalEncoder(categories=[categ],
                     dtype=int)
+oe.fit(df_db[['drinking']])
+df_db[['drinking']] = oe.transform(pd.DataFrame(df_db['drinking']))
 
-oe.fit(df_2[['drinking']])
-
-df_2[['drinking']] = oe.transform(pd.DataFrame(df_2['drinking']))
-
-
-categ = ['currently a primary school pupil',  'primary school', 'secondary school', 'college/bachelor degree', 'masters degree',
-            'doctorate degree']
-
+categ = ['currently a primary school pupil', 'primary school', 'secondary school', 'college/bachelor degree',
+         'masters degree',
+         'doctorate degree']
 oe = OrdinalEncoder(categories=[categ],
                     dtype=int)
+oe.fit(df_db[['education']])
+df_db[['education']] = oe.transform(pd.DataFrame(df_db['education']))
+df_db['education'].loc[df_db['education'] > 3] = 3
 
-oe.fit(df_2[['education']])
+df_db['number_siblings'].loc[df_db['number_siblings'] > 5] = 5
 
-df_2[['education']] = oe.transform(pd.DataFrame(df_2['education']))
-
-df_2['education'].loc[df_2['education']>3]=3
-
-df_2['number_siblings'].loc[df_2['number_siblings']>5]=5
-
-df_train1 = df_2[df_2['train']==1]
-
+cols_to_scale = [
+    'gender', 'birth_year', 'number_siblings', 'education',
+    'slow_songs_or_fast_songs', 'dance', 'folk', 'country', 'classical_music',
+    'musical', 'pop', 'rock', 'metal_or_hardrock', 'punk', 'hiphop_rap',
+    'reggae_ska', 'swing_jazz', 'rock_n_roll', 'alternative', 'latino',
+    'techno_trance', 'opera', 'horror', 'thriller', 'comedy', 'romantic',
+    'sci_fi', 'war', 'fantasy_fairy_tales', 'animated', 'documentary',
+    'western', 'action', 'mathematics', 'physics', 'biology', 'chemistry',
+    'medicine', 'geography', 'history', 'psychology', 'politics', 'economy',
+    'law', 'science_and_technology', 'internet', 'pc', 'art_exhibitions',
+    'theatre', 'dancing', 'musical_instruments', 'writing', 'reading',
+    'foreign_languages', 'cars', 'religion', 'gardening', 'celebrities',
+    'shopping', 'fun_with_friends', 'pets', 'sport', 'travel', 'flying',
+    'thunder_lightning', 'darkness', 'heights', 'spiders', 'snakes',
+    'rats_mice', 'aging', 'dangerous_dog', 'public_speaking', 'smoking',
+    'drinking', 'healthy_life_style'
+]
 scaler = StandardScaler()
-scaler.fit(df_train1._get_numeric_data())
+scaler.fit(df_db[cols_to_scale])
 
-df_scaled = pd.DataFrame(data=scaler.transform(df_train1._get_numeric_data()),
-             columns=df_train1._get_numeric_data().columns)
+df_scaled = pd.DataFrame(data=scaler.transform(df_db[cols_to_scale]),
+                         columns=df_db[cols_to_scale].columns, index=df_db.index)
 
-df = df_scaled.drop(['phone_number', 'train'], axis=1)
+df = pd.merge(df_scaled, df_db[['user_id','train']], left_index = True, right_index = True)
+
 
 class Nearest_User:
-    def __init__(self, df, user_id):
+    def __init__(self, df, user_id, train_id):
         self.user_id = user_id
-        self.df = df.dropna()
-        self.row_user = np.array(df.loc[user_id])
+        self.df = df[df['train'] == train_id]
+        self.row_user = np.array(df[df['user_id'] == user_id])
+
     def predict(self):
         similarities = []
-        for i,row in self.df.iterrows():
-            similarities.append(cosine_similarity(self.row_user.reshape(1, -1),np.array(row).reshape(1, -1)))
+        for i, row in self.df.iterrows():
+            similarities.append(cosine_similarity(self.row_user.reshape(1, -1), np.array(row).reshape(1, -1)))
         self.df['similarities'] = similarities
-        self.df = self.df.sort_values(by='similarities',ascending=False)
-        return int(self.df.head(2).tail(1).index[0])
-
+        self.df = self.df.sort_values(by='similarities', ascending=False)
+        return int(self.df.head(2).tail(1)['user_id'])
 
 
 @app.route('/best_friend')
 def best_friend():
     user_id = int(request.args.get("user_id"))
     train_id = int(request.args.get("train_id"))
-    nu = Nearest_User(df, user_id)
+    nu = Nearest_User(df, user_id,train_id)
     index = nu.predict()
-    df_final = df_2.loc[index].to_frame().T
-    return f"""Your best friend in this train is {list(df_final['first_name'])[0]} {list(df_final['last_name'])[0]} \n
-            Phone number: {list(df_final['phone_number'])[0]} \n
-            Email: {list(df_final['email'])[0]}
-            """
+    return str(index)
 
 
 app.run(host='0.0.0.0', port=8080)
